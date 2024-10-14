@@ -40,25 +40,21 @@ def retirar_do_mongo_para_redis(email):
         cliente = clientes_collection.find_one({"email": email})
         
         if cliente:
-            # Verificando os favoritos
             favoritos = cliente.get("favoritos", [])
-            
-            # Lista para armazenar os produtos completos
+
             itens = []
-            ids_adicionados = set()  # Conjunto para rastrear IDs adicionados
-            
-            # Vamos buscar o nome do produto baseado no _id
-            for produto_id in favoritos[:3]:  # Pegando 3 produtos de favoritos
+            ids_adicionados = set() 
+
+            for produto_id in favoritos[:3]:  
                 try:
-                    # Consulta diretamente pelo _id
                     produto = produtos_collection.find_one({"_id": ObjectId(produto_id)})
                     
                     if produto and produto_id not in ids_adicionados:
-                        print(f"Produto encontrado: {produto}")  # Depuração
+                        print(f"Produto encontrado: {produto}") 
                         itens.append({
                             "id_produto": str(produto.get("_id")),
                             "nome_produto": produto.get("nome", "Produto sem nome"),
-                            "preco": produto.get("preco", 0)  # Ajuste conforme os campos do produto
+                            "preco": produto.get("preco", 0)  
                         })
                         ids_adicionados.add(produto_id)
                     else:
@@ -66,7 +62,6 @@ def retirar_do_mongo_para_redis(email):
                 except Exception as e:
                     print(f"Erro ao buscar produto com ID {produto_id}: {e}")
             
-            # Salvar os itens completos no Redis
             salvar_redis(email, itens, "itens")
         else:
             print("Cliente não encontrado!")
@@ -109,21 +104,17 @@ def devolver_para_mongo(email):
         
         cliente = clientes_collection.find_one({"email": email})
         if cliente:
-            # Atualizando os favoritos com os itens manipulados
             favoritos = cliente.get("favoritos", [])
             
-            # Devolvendo os itens ao MongoDB
             novos_favoritos = favoritos[:3] + [item['id_produto'] for item in itens if item['id_produto'] not in favoritos]
             
-            # Atualizando no MongoDB
             clientes_collection.update_one({"email": email}, {"$set": {"favoritos": novos_favoritos}})
             
-            # Atualizando os produtos na coleção de produtos
             for item in itens:
                 produtos_collection.update_one(
                     {"_id": ObjectId(item['id_produto'])},  
                     {"$set": {"preco": item['preco']}},
-                    upsert=False  # Não criar um novo produto se não existir
+                    upsert=False 
                 )
             
             print("Itens devolvidos ao MongoDB!")
@@ -131,6 +122,7 @@ def devolver_para_mongo(email):
             print("Cliente não encontrado no MongoDB!")
     else:
         print("Não há itens armazenados no Redis para devolver!")
+        
 # Função para exibir o menu de opções
 def opcoes_usuario(email):
     while True:
