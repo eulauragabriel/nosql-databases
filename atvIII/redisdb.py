@@ -10,8 +10,8 @@ try:
     cliente = pymongo.MongoClient("mongodb+srv://eulauragabriel:12345@eulauragabriel.cmphovu.mongodb.net/?retryWrites=true&w=majority&appName=eulauragabriel")
     db = cliente.mercado_livre
     clientes_collection = db["clientes"]
-    produtos_collection = db["produtos"]  # Coleção de produtos
-    compras_collection = db["compras"]  # Adicionando a coleção de compras
+    produtos_collection = db["produtos"] 
+    compras_collection = db["compras"] 
     print("Conexão com MongoDB estabelecida com sucesso!")
 except Exception as e:
     print(f"Erro ao conectar com MongoDB: {e}")
